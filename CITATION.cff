@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+title: "Water Quality Simulation for Euphrates River"
+authors:
+  - family-names: "Abduladheem"
+    given-names: "Huda"
+date-released: 2023-12-07
+version: 1.0.0
+type: software
+repository-code: "https://github.com/HudaElmuthefer/simulation-for-water-quality-ensurance"
+license: MIT
+keywords:
+  - water-quality
+  - simulation
+  - MATLAB
+  - Euphrates-River
+  - environmental-engineering
+description: "A MATLAB-based simulation program for studying water quality in the Euphrates River, focusing on pollutant concentrations and water quality assessment according to WHO standards."
