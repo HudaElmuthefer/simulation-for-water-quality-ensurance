@@ -1,0 +1,42 @@
+% MATLAB generated files
+*.m~
+*.asv
+*.mat
+*.fig
+*.mlapp
+*.mltbx
+*.mlappinstall
+*.mlpkginstall
+
+% Simulink
+slprj/
+sfprj/
+
+% MATLAB Coder
+codegen/
+
+% Build directories
+build/
+dist/
+
+% Generated files
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.dll
+
+% IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+% OS
+.DS_Store
+Thumbs.db
+
+% Results and outputs (optional - كاحفظ نتائج)
+# results/
+# output/
