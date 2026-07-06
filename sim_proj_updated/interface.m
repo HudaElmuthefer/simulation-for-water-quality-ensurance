@@ -1,3 +1,0 @@
-function interface()
-paretoguide;
-end
