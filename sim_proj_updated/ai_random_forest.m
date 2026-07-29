@@ -64,6 +64,7 @@ for i = 1:n_samples
 end
 
 % تدريب النموذج
+clear rng   % remove any variable named 'rng' that may shadow MATLAB's built-in rng function
 rng(2024);
 n_trees = 100;
 model = TreeBagger(n_trees, data_matrix, labels, ...
@@ -85,8 +86,13 @@ current_state = data_matrix(end, :);
 figure;
 barh(result_table.Score);
 set(gca, 'YTickLabel', result_table.Feature);
-title('Importance Analysis');
+oobErr = oobError(model);
+oobAccuracy = 100 * (1 - oobErr(end));
+title('Random Forest Feature Importance for WQI Classification');
+subtitle(sprintf('OOB Accuracy: %.2f%%', oobAccuracy));
+saveas(gcf, 'figure5_rf_importance.png');
 
 figure;
 plot(oobError(model));
 title('Model Training Error');
+saveas(gcf, 'figure6_rf_learning_curve.png');

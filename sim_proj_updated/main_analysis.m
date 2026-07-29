@@ -125,12 +125,22 @@ for i = 1:np
         exc = max(0, (x - maxLimit(i)) ./ maxLimit(i) * 100);
     end
     viol = exc(exc > 0);
-    meanExc(i) = ifelse(isempty(viol), 0, mean(viol));
+    if isempty(viol)
+    meanExc(i) = 0;
+else
+    meanExc(i) = mean(viol);
+end
     maxExc(i) = max(exc);
 end
 severityT = table(string(paramNames), meanExc, maxExc, ...
     'VariableNames', {'Parameter', 'MeanExceedance', 'MaxExceedance'});
 severityT = sortrows(severityT, 'MeanExceedance', 'descend');
+
+figure; bar(severityT.Parameter, severityT.MeanExceedance);
+title('Severity-Based Ranking by Exceedance Magnitude at Point E17');
+ylabel('Mean exceedance over WHO limit (%)'); xtickangle(45);
+saveas(gcf, 'figure3_severity_ranking.png');
+
 fprintf('=== ترتيب الشدة ===\n');
 disp(severityT);
 writetable(severityT, 'severity_ranking.xlsx');
@@ -145,7 +155,13 @@ for i = 1:np
     end
     Z = S / sqrt(n*(n-1)*(2*n+5)/18);
     p = 2 * (1 - normcdf(abs(Z)));
-    trendStr = ifelse(p < 0.05 && Z > 0, 'increasing', ifelse(p < 0.05 && Z < 0, 'decreasing', 'no trend'));
+    if p < 0.05 && Z > 0
+        trendStr = 'increasing';
+    elseif p < 0.05 && Z < 0
+        trendStr = 'decreasing';
+    else
+        trendStr = 'no trend';
+    end
     trendRows(i, :) = {paramNames{i}, S, Z, p, trendStr, 0};
 end
 writetable(cell2table(trendRows, 'VariableNames', {'Parameter', 'S', 'Z', 'p', 'Trend', 'Slope'}), 'trend_data.xlsx');

@@ -1239,7 +1239,54 @@ text(0.3, 9.2, causesTurbiolity{5}, 'HorizontalAlignment', 'left');
 
 hold off;    
         case 'TPC'
-            causesarray ={'Soil and rocks', 'low levels', 'Evaporation', 'Lack of releases','Human pollution'};
+% fishbone diagram of TPC
+% Define the causes of  TPC pollution
+causesTPC = {'Biological contamination', 'Agriculture pollutants', 'Industrial activity', 'Waste disposal', 'Sewage water'};
+
+% Plot the diagram
+figure;
+hold on;
+xlim([0, 10]);
+ylim([0,10]);
+set(gca, 'Visible', 'off');
+rectangle('position',[6,5,3,3]);
+x = [0.5 6];
+y = [6.5 6.5 ];
+
+line(x, y, 'Color', 'r', 'LineWidth', 2);
+
+% Draw diagonal lines
+x1 = [5 4.5];
+x2 = [1.5 0.5];
+y1 = [6.5 4.5];
+y2 = [6.5 8.5];
+y3 = [6.5  8.5];
+x3=[3.5 2.5];
+
+
+line(x1, y1, 'Color', 'b', 'LineWidth', 2);
+line(x1, y2, 'Color', 'b', 'LineWidth', 2);
+line(x3,y3, 'Color', 'b', 'LineWidth', 2);
+line(x2, y1, 'Color', 'b', 'LineWidth', 2);
+line(x2, y2, 'Color', 'b', 'LineWidth', 2);
+
+% Draw tail
+x1_triangle = [0.5 0.1 ];
+y1_triangle = [6.5 6 ];
+y2_triangle = [6.5  7];
+
+line(x1_triangle, y1_triangle, 'Color', 'g', 'LineWidth', 2);
+line(x1_triangle, y2_triangle, 'Color', 'g', 'LineWidth', 2);
+
+% Add text labels
+text(6.5, 6.5, "TPC pollution", 'HorizontalAlignment', 'left');
+text(4.7 , 4.2, causesTPC{1}, 'HorizontalAlignment', 'right');
+text(3.2, 9, causesTPC{2}, 'HorizontalAlignment', 'right');
+text(6.9, 8.8, causesTPC{3}, 'HorizontalAlignment', 'right');
+text(0.3, 3.6, causesTPC{4}, 'HorizontalAlignment', 'left');
+text(0.3, 9.6, causesTPC{5}, 'HorizontalAlignment', 'left');
+
+hold off;
         case 'coliform'
 % fishbone diagram of coliforms
 % Define the causes of  coliforms pollution

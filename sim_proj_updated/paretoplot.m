@@ -307,3 +307,9 @@ xticks(1:length(sortedNames));
 xticklabels(sortedNames);
 
 ylim([0, 120]);
+
+yyaxis right;
+yline(80, '--', '80% Threshold');
+yyaxis left;
+
+saveas(gcf, 'figure2_pareto_diagram.png');

@@ -7,7 +7,7 @@ range_month = 'A2:A19';
 range_ph = 'B2:B19';
 range_temp = 'C2:C19';
 range_do = 'D2:D19';
-range_Po4 = 'E2:E19'; 
+range_Po4 = 'E2:E19';
 range_NO3 = 'F2:F19';
 range_Ca = 'G2:G19';
 range_Mg = 'H2:H19';
@@ -86,180 +86,124 @@ min_coliform = xlsread('who.xlsx', 'Sheet1', 'D20');
 max_Ecoli = xlsread('who.xlsx', 'Sheet1', 'C21');
 min_Ecoli = xlsread('who.xlsx', 'Sheet1', 'D21');
 
+% Source month labels (column A) are Arabic text, not numeric dates, so
+% xlsread cannot return them as a plottable axis. Use a 1..N month index
+% for the x-axis of every panel below instead.
+month_idx = (1:numel(TDS))';
 
-%Water Test plots
-%PH plot
-figure;
+%% ===================== Figure 1: Major dissolved salts vs WHO limits =====================
+% TDS, Sulphate, Chloride, Sodium - required order: top-left to bottom-right
+figure('Name', 'Major Dissolved Salts', 'Position', [100 100 900 650]);
 
-subplot(3,2,1);
-xlim([0,20]);
-ylim([0,10]);
-plot(ph);
-title('PH plot');
-xlabel('month');
-ylabel(' pH');
-
-% Temp plot
-subplot(3,2,2);
-xlim([0,20]);
-ylim([10,30]);
-plot(temp);
-title('Temp. plot ');
-xlabel ('month');
-ylabel('Tempreture');
-
-%dissolved oxygen plot
-subplot(3,2,3);
-xlim([0,20]);
-ylim([5,20]);
-plot(do);
-title('dissolved oxygen plot ');
-xlabel ('month');
-ylabel('dissolved oxygen');
-
-% phosphates plot
-subplot(3,2,4);
-xlim([0,20]);
-ylim([0,1]);
-plot(po4);
-title('phosphates plot ');
-xlabel ('month');
-ylabel('phosphates');
-
-% nitrate plot
-subplot(3,2,5);
-xlim([0,20]);
-ylim([0,50 ]);
-plot(NO3);
-title('nitrate plot ');
-xlabel ('month');
-ylabel('nitrate');
-
-% Calcium plot
-subplot(3,2,6);
-xlim([0,20]);
-ylim([100,400]);
-plot(Ca);
-title('Calcium plot ');
-xlabel ('month');
-ylabel('Calcium');
-
-figure;
-% magnesium plot
-subplot(3,2,1);
-xlim([0,20]);
-ylim([100,250]);
-plot(Mg);
-title('magnesium');
-xlabel('month');
-ylabel(' magnesium');
-
-% total hardness plot
-subplot(3,2,2);
-xlim([0,20]);
-ylim([600,2000]);
-plot(TH);
-title('TH plot ');
-xlabel ('month');
-ylabel('total hardness');
-
-% potassium plot
-subplot(3,2,3);
-xlim([0,20]);
-ylim([0,35]);
-plot(K);
-title('potassium plot ');
-xlabel ('month');
-ylabel('potassium');
-
-% sodium plot
-subplot(3,2,4);
-xlim([0,20]);
-ylim([500,1000]);
-plot(Na);
-title('sodium plot ');
-xlabel ('month');
-ylabel('sodium');
-
-% sulfate plot
-subplot(3,2,5);
-xlim([0,20]);
-ylim([500,1100]);
-plot(SO4);
-title('sulfate plot ');
-xlabel ('month');
-ylabel('sulfate');
-
-% chloride plot
-subplot(3,2,6);
-xlim([0,20]);
-ylim([500,1500]);
-plot(Cl);
-title('Cl plot ');
-xlabel ('month');
-ylabel('chloride');
-
-figure;
-% total dissolved salts plot
-subplot(3,2,1);
-xlim([0,20]);
-ylim([500,3000]);
-plot(TDS);
-title('TDS');
-xlabel('month');
-ylabel(' TDS');
-
-%electrical conductivity plot
-subplot(3,2,2);
-xlim([0,20]);
-ylim([1000,8000]);
-plot(EC);
-title('EC plot ');
-xlabel ('month');
-ylabel('EC');
-
-% total alkalinity plot
-subplot(3,2,3);
-xlim([0,20]);
-ylim([100,300]);
-plot(ALK);
-title('ALK plot ');
-xlabel ('month');
-ylabel('ALK');
-
-% Turbidity plot
-subplot(3,2,4);
-xlim([0,20]);
-ylim([1,40]);
-plot(TUR);
-title('Turbidity plot ');
-xlabel ('month');
-ylabel('TUR');
-
-figure;
-% The number of total bacteria plot
 subplot(2,2,1);
-xlim([0,20]);
-ylim([70,500]);
-plot(TPC);
-title('total bacteria plot ');
-xlabel ('month');
-ylabel('TPC');
+plotPanel(month_idx, TDS, 'TDS (mg/L)', 'TDS (mg/L)', max_TDS, sprintf('WHO limit (%g mg/L)', max_TDS), [], '');
 
-% coli bacteria plot
 subplot(2,2,2);
-xlim([0,20]);
-ylim([50,100]);
-plot(coliform);
-title('coli bacteria plot ');
-xlabel ('month');
-ylabel('coliforms');
+plotPanel(month_idx, SO4, 'Sulphate - SO4 (mg/L)', 'SO4 (mg/L)', max_SO4, sprintf('WHO limit (%g mg/L)', max_SO4), [], '');
 
-% Escherichia coli bacteria plot
 subplot(2,2,3);
-xlim([0,20]);
-ylim([50,100]);
-plot(Ecoli);
-title('E. coli plot');
-xlabel('month');
-ylabel(' Ecoli');
+plotPanel(month_idx, Cl, 'Chloride - Cl (mg/L)', 'Cl (mg/L)', max_Cl, sprintf('WHO limit (%g mg/L)', max_Cl), [], '');
+
+subplot(2,2,4);
+plotPanel(month_idx, Na, 'Sodium - Na (mg/L)', 'Na (mg/L)', max_Na, sprintf('WHO limit (%g mg/L)', max_Na), [], '');
+
+print(gcf, 'fig1_TDS_SO4_Cl_Na.png', '-dpng', '-r300');
+
+%% ===================== Figure 2: Major ions =====================
+% Calcium, Magnesium, Total Hardness, Potassium
+figure('Name', 'Major Ions', 'Position', [100 100 900 650]);
+
+subplot(2,2,1);
+plotPanel(month_idx, Ca, 'Calcium - Ca (mg/L)', 'Ca (mg/L)', max_Ca, sprintf('WHO limit (%g mg/L)', max_Ca), [], '');
+
+subplot(2,2,2);
+plotPanel(month_idx, Mg, 'Magnesium - Mg (mg/L)', 'Mg (mg/L)', max_Mg, sprintf('WHO limit (%g mg/L)', max_Mg), [], '');
+
+subplot(2,2,3);
+plotPanel(month_idx, TH, 'Total Hardness (mg/L)', 'TH (mg/L)', max_TH, sprintf('WHO limit (%g mg/L)', max_TH), [], '');
+
+subplot(2,2,4);
+plotPanel(month_idx, K, 'Potassium - K (mg/L)', 'K (mg/L)', max_K, sprintf('WHO limit (%g mg/L)', max_K), [], '');
+
+print(gcf, 'fig2_major_ions.png', '-dpng', '-r300');
+
+%% ===================== Figure 3: Physical parameters =====================
+% pH, Temperature, Dissolved Oxygen, Electrical Conductivity, Alkalinity, Turbidity
+figure('Name', 'Physical Parameters', 'Position', [80 80 1300 700]);
+
+subplot(2,3,1);
+plotPanel(month_idx, ph, 'pH', 'pH', max_ph, sprintf('WHO max (%g)', max_ph), min_ph, sprintf('WHO min (%g)', min_ph));
+
+subplot(2,3,2);
+plotPanel(month_idx, temp, 'Temperature (\circC)', 'Temperature (\circC)', max_temp, sprintf('WHO limit (%g \\circC)', max_temp), [], '');
+
+subplot(2,3,3);
+plotPanel(month_idx, do, 'Dissolved Oxygen - DO (mg/L)', 'DO (mg/L)', [], '', min_do, sprintf('WHO min (%g mg/L)', min_do));
+
+subplot(2,3,4);
+plotPanel(month_idx, EC, 'Electrical Conductivity - EC (\muS/cm)', 'EC (\muS/cm)', max_EC, sprintf('WHO limit (%g \\muS/cm)', max_EC), [], '');
+
+subplot(2,3,5);
+plotPanel(month_idx, ALK, 'Alkalinity (mg/L)', 'ALK (mg/L)', max_ALK, sprintf('WHO limit (%g mg/L)', max_ALK), [], '');
+
+subplot(2,3,6);
+plotPanel(month_idx, TUR, 'Turbidity (NTU)', 'Turbidity (NTU)', max_TUR, sprintf('WHO limit (%g NTU)', max_TUR), [], '');
+
+print(gcf, 'fig3_physical_parameters.png', '-dpng', '-r300');
+
+%% ===================== Figure 4: Nutrients =====================
+% Phosphate, Nitrate
+figure('Name', 'Nutrients', 'Position', [100 100 900 400]);
+
+subplot(1,2,1);
+plotPanel(month_idx, po4, 'Phosphate - PO4 (mg/L)', 'PO4 (mg/L)', max_PO4, sprintf('WHO limit (%g mg/L)', max_PO4), [], '');
+
+subplot(1,2,2);
+plotPanel(month_idx, NO3, 'Nitrate - NO3 (mg/L)', 'NO3 (mg/L)', max_NO3, sprintf('WHO limit (%g mg/L)', max_NO3), [], '');
+
+print(gcf, 'fig4_nutrients.png', '-dpng', '-r300');
+
+%% ===================== Figure 5: Microbiological indicators =====================
+% Total Plate Count, Total Coliform, E. coli
+figure('Name', 'Microbiological Indicators', 'Position', [100 100 1300 400]);
+
+subplot(1,3,1);
+plotPanel(month_idx, TPC, 'Total Plate Count (CFU/mL)', 'TPC (CFU/mL)', max_TPC, sprintf('WHO limit (%g CFU/mL)', max_TPC), [], '');
+
+subplot(1,3,2);
+plotPanel(month_idx, coliform, 'Total Coliform (count)', 'Coliform (count)', max_coliform, sprintf('WHO limit (%g)', max_coliform), [], '');
+
+subplot(1,3,3);
+plotPanel(month_idx, Ecoli, 'E. coli (count)', 'E. coli (count)', max_Ecoli, sprintf('WHO limit (%g)', max_Ecoli), [], '');
+
+print(gcf, 'fig5_microbiological.png', '-dpng', '-r300');
+
+%% ===================== Local helper =====================
+function plotPanel(monthVec, y, titleStr, ylabelStr, maxVal, maxLabel, minVal, minLabel)
+% Draw one parameter panel (value vs. month) with dashed WHO limit line(s).
+plot(monthVec, y, '-o', 'Color', [0 0.4470 0.7410], 'LineWidth', 1.2, 'MarkerSize', 4);
+hold on;
+if ~isempty(maxVal)
+    yline(maxVal, '--r', maxLabel, 'FontSize', 9, 'LabelHorizontalAlignment', 'left');
+end
+if ~isempty(minVal)
+    yline(minVal, '--r', minLabel, 'FontSize', 9, 'LabelHorizontalAlignment', 'left');
+end
+hold off;
+title(titleStr, 'FontSize', 11, 'FontWeight', 'bold');
+xlabel('Month', 'FontSize', 10);
+ylabel(ylabelStr, 'FontSize', 10);
+set(gca, 'FontSize', 9);
+grid on;
+box on;
+
+% Pad the y-range so WHO limit line(s)/labels never sit on the axis border
+boundVals = y(:);
+if ~isempty(maxVal), boundVals = [boundVals; maxVal]; end
+if ~isempty(minVal), boundVals = [boundVals; minVal]; end
+yLo = min(boundVals);
+yHi = max(boundVals);
+pad = 0.1 * (yHi - yLo);
+if pad == 0, pad = max(1, 0.1 * abs(yHi)); end
+ylim([yLo - pad, yHi + pad]);
+end
