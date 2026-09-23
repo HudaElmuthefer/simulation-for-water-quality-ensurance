@@ -297,6 +297,7 @@ parametermax = [max_ph, max_temp, max_do, max_PO4, max_NO3, max_Ca, max_Mg, max_
 parametermin = [min_ph, min_temp, min_do, min_PO4, min_NO3, min_Ca, min_Mg, min_TH, min_K ,min_Na, min_SO4, min_Cl, min_TDS, min_EC, min_ALK, min_TUR, min_TPC, min_coliform, min_Ecoli];
 probParametersNotInLimits =  [prob_ph, prob_temp, prob_do, prob_PO4, prob_NO3, prob_Ca, prob_Mg, prob_TH, prob_K , prob_Na, prob_SO4, prob_Cl, prob_TDS, prob_EC, prob_ALK, prob_TUR, prob_TPC, prob_coliform, prob_Ecoli];
 numSimulations = 1000; 
+clear rng   % FIX: remove any leftover variable named 'rng' shadowing the built-in function
 rng(2024); % fixed seed for reproducibility
 n_obs = length(ph);
 mc_draws = zeros(numSimulations, numParameters);
@@ -325,6 +326,12 @@ priorityArrays = cell(1, numUniqueCounters);
 for i = 1:numUniqueCounters
     counterIndex = find(sortedOutlimitscounter == uniqueCounters(i));
     priorityArrays{numUniqueCounters - i + 1} = sortedParameters(counterIndex);
+end
+
+% FIX: save each priority tier's fishbone diagrams into its own folder
+outdir = 'priority2';
+if ~exist(outdir, 'dir')
+    mkdir(outdir);
 end
 
 % Display the parameters with the second highest counter
@@ -466,46 +473,8 @@ text(6.5, 6.5, "Do pollution", 'HorizontalAlignment', 'left');
 text(4.7 , 4.2, causesDo{1}, 'HorizontalAlignment', 'right');
 text(5, 9, causesDo{2}, 'HorizontalAlignment', 'right');
 hold off;
-       
-% Plot the diagram
-figure;
-hold on;
-xlim([0, 10]);
-ylim([0,10]);
-set(gca, 'Visible', 'off');
-rectangle('position',[6,5,3,3]);
-x = [0.5 6];
-y = [6.5 6.5 ]; 
-
-line(x, y, 'Color', 'r', 'LineWidth', 2); 
-
-% Draw diagonal lines
-x1 = [5 4.5];
-y1 = [6.5 4.5];
-y2 = [6.5 8.5];
-
-
-
-line(x1, y1, 'Color', 'b', 'LineWidth', 2);
-line(x1, y2, 'Color', 'b', 'LineWidth', 2);
-
-
-% Draw tail
-x1_triangle = [0.5 0.1 ];
-y1_triangle = [6.5 6 ];
-y2_triangle = [6.5  7];
-
-
-line(x1_triangle, y1_triangle, 'Color', 'g', 'LineWidth', 2);
-line(x1_triangle, y2_triangle, 'Color', 'g', 'LineWidth', 2);
-
-% Add text labels
-text(6.5, 6.5,'Do pollution', 'HorizontalAlignment', 'left');
-text(4.7 , 4.2, causesDo{1}, 'HorizontalAlignment', 'right');
-text(5, 9, causesDo{2}, 'HorizontalAlignment', 'right');
-hold off;
-
-        
+        % FIX: removed a duplicate copy of this exact diagram that was
+        % pasted twice in a row here, opening a second identical figure
         case 'PO4'
             % fishbone diagram of PO4
 % Define the causes of   PO4 pollution
@@ -663,6 +632,7 @@ text(3.5, 7.8, causesCa{4}, 'HorizontalAlignment', 'right');
 text(0.3, 9.2, causesCa{5}, 'HorizontalAlignment', 'left');
 
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_Ca.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'Mg'
 % fishbone diagram of Magnesium
 % Define the causes of   Magnesium pollution
@@ -708,7 +678,7 @@ line(x1_triangle, y1_triangle, 'Color', 'g', 'LineWidth', 2);
 line(x1_triangle, y2_triangle, 'Color', 'g', 'LineWidth', 2);
 
 % Add text labels
-text(6, 6.5, "Magnesium pollution", 'HorizontalAlignment', 'left');
+text(6.7, 6.5, "Mg pollution", 'HorizontalAlignment', 'left'); % FIX: repositioned to match other labels (was flush against box edge)
 text(4.7 , 4.2, causesMagnesium{1}, 'HorizontalAlignment', 'right');
 text(5, 9, causesMagnesium{2}, 'HorizontalAlignment', 'right');
 text(3.5, 7.2, causesMagnesium{3}, 'HorizontalAlignment', 'right');
@@ -716,10 +686,11 @@ text(3.5, 7.8, causesMagnesium{4}, 'HorizontalAlignment', 'right');
 text(0.3, 9.2, causesMagnesium{5}, 'HorizontalAlignment', 'left');
 
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_Mg.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'TH'
 % fishbone diagram of TH
 % Define the causes of TH pollution
-causesTH = {'Soil type', 'Swage water', 'agricultural draining water', 'car wash water'};
+causesTH = {'Soil type', 'Sewage water', 'agricultural draining water', 'car wash water'};
 
 
 % Plot the diagram
@@ -765,6 +736,7 @@ text(0.3, 4.2, causesTH{3}, 'HorizontalAlignment', 'left');
 text(0.3, 9.2, causesTH{4}, 'HorizontalAlignment', 'left');
 
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_TH.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'K'
             % fishbone diagram of K
 % Define the causes of   K pollution
@@ -828,6 +800,7 @@ text(3.5, 7.8, causesK{6}, 'HorizontalAlignment', 'right');
 text(0.3, 9.2, causesK{7}, 'HorizontalAlignment', 'left');
 
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_K.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'Na'
 % fishbone diagram of Na
 % Define the causes of   Na pollution
@@ -891,6 +864,7 @@ text(3.5, 7.8, causesNa{6}, 'HorizontalAlignment', 'right');
 text(0.3, 9.2, causesNa{7}, 'HorizontalAlignment', 'left');
 
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_Na.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'SO4'
             % fishbone diagram of SO4
 % Define the causes of SO4 pollution
@@ -938,6 +912,7 @@ text(6.7, 9, causes{2}, 'HorizontalAlignment', 'right');
 text(0.3, 4.2, causes{3}, 'HorizontalAlignment', 'left');
 text(0.3, 9.2, causes{4}, 'HorizontalAlignment', 'left');
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_SO4.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
 
         case 'Cl'
 % fishbone diagram of Cl
@@ -987,6 +962,7 @@ text(0.3, 4.2, causescl{3}, 'HorizontalAlignment', 'left');
 text(0.3, 9.2, causescl{4}, 'HorizontalAlignment', 'left');
 
 hold off; 
+exportgraphics(gcf, fullfile(outdir, 'fig7_Cl.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'TDS'
 % fishbone diagram of TDS
 % Define the causes of  TDS pollution
@@ -1040,10 +1016,13 @@ text(3.5, 7.8, causesTDS{4}, 'HorizontalAlignment', 'right');
 text(0.3, 9.2, causesTDS{5}, 'HorizontalAlignment', 'left');
 
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_TDS.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'EC'
 % fishbone diagram of E.C
 % Define the causes of E.C pollution
-causesE.C = { 'Agriculture pollutants', 'Fertilisers', 'Pesticide','Industrial activity','leak','Waste disposal','Biological contamination','Animalistic','Vegetarian'};
+% FIX: "causesE.C" is invalid MATLAB syntax (dot is read as a struct
+% field access on an undefined variable) - renamed to causesEC
+causesEC = { 'Agriculture pollutants', 'Fertilisers', 'Pesticide','Industrial activity','leak','Waste disposal','Biological contamination','Animalistic','Vegetarian'};
 % Plot the diagram
 figure;
 hold on;
@@ -1101,23 +1080,25 @@ line(x1_triangle, y2_triangle, 'Color', 'g', 'LineWidth', 2);
 
 % Add text labels
 %main lables
-text(6.3, 6.5, "E.C pollution", 'HorizontalAlignment', 'left');
-text(4.7 , 4.2, causesE.C{1}, 'HorizontalAlignment', 'right');
-text(5, 8.6, causesE.C{4}, 'HorizontalAlignment', 'right');
-text(0.3, 4.5, causesE.C{7}, 'HorizontalAlignment', 'right');
+text(6.3, 6.5, "EC pollution", 'HorizontalAlignment', 'left');
+text(4.7 , 4.2, causesEC{1}, 'HorizontalAlignment', 'right');
+text(5, 8.6, causesEC{4}, 'HorizontalAlignment', 'right');
+text(0.3, 4.5, causesEC{7}, 'HorizontalAlignment', 'right');
 
 % secondary lables
-text(3.5 , 5.8, causesE.C{2}, 'HorizontalAlignment', 'right');
-text(3.3 , 5, causesE.C{3}, 'HorizontalAlignment', 'right');
-text(3.5, 7.2, causesE.C{5}, 'HorizontalAlignment', 'right');
-text(3.5, 7.8, causesE.C{6}, 'HorizontalAlignment', 'right');
-text(0.3, 5, causesE.C{8}, 'HorizontalAlignment', 'right');
-text(0.3, 5.8, causesE.C{9 }, 'HorizontalAlignment', 'right');
+text(3.5 , 5.8, causesEC{2}, 'HorizontalAlignment', 'right');
+text(3.3 , 5, causesEC{3}, 'HorizontalAlignment', 'right');
+text(3.5, 7.2, causesEC{5}, 'HorizontalAlignment', 'right');
+text(3.5, 7.8, causesEC{6}, 'HorizontalAlignment', 'right');
+text(0.3, 5, causesEC{8}, 'HorizontalAlignment', 'right');
+text(0.3, 5.8, causesEC{9 }, 'HorizontalAlignment', 'right');
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_EC.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'ALK'
 % fishbone diagram of ALK
 % Define the causes of  ALK pollution
-causesA.L.K = {'swage water', 'Agriculture pollutants', 'Fertilisers', 'Pesticide','Industrial activity','leak','Waste disposal','Alkalinity','K','Ca'};
+% FIX: "causesA.L.K" is invalid MATLAB syntax - renamed to causesALK
+causesALK = {'swage water', 'Agriculture pollutants', 'Fertilisers', 'Pesticide','Industrial activity','leak','Waste disposal','Alkalinity','K','Ca'};
 % Plot the diagram
 figure;
 hold on;
@@ -1175,18 +1156,18 @@ line(x1_triangle, y2_triangle, 'Color', 'g', 'LineWidth', 2);
 % Add text labels
 %main lables
 text(6.3, 6.5, "A.L.K pollution", 'HorizontalAlignment', 'left');
-text(0.3, 9.2, causesA.L.K{1}, 'HorizontalAlignment', 'left');
-text(4.7 , 4.2, causesA.L.K{2}, 'HorizontalAlignment', 'right');
-text(5, 8.6, causesA.L.K{5}, 'HorizontalAlignment', 'right');
-text(0.3, 4.5, causesA.L.K{8}, 'HorizontalAlignment', 'right');
+text(0.3, 9.2, causesALK{1}, 'HorizontalAlignment', 'left');
+text(4.7 , 4.2, causesALK{2}, 'HorizontalAlignment', 'right');
+text(5, 8.6, causesALK{5}, 'HorizontalAlignment', 'right');
+text(0.3, 4.5, causesALK{8}, 'HorizontalAlignment', 'right');
 
 % secondary lables
-text(3.5 , 5.8, causesA.L.K{3}, 'HorizontalAlignment', 'right');
-text(3.3 , 5, causesA.L.K{4}, 'HorizontalAlignment', 'right');
-text(3.5, 7.2, causesA.L.K{6}, 'HorizontalAlignment', 'right');
-text(3.5, 7.8, causesA.L.K{7}, 'HorizontalAlignment', 'right');
-text(0.3, 5, causesA.L.K{9}, 'HorizontalAlignment', 'right');
-text(0.3, 5.8, causesA.L.K{10 }, 'HorizontalAlignment', 'right');
+text(3.5 , 5.8, causesALK{3}, 'HorizontalAlignment', 'right');
+text(3.3 , 5, causesALK{4}, 'HorizontalAlignment', 'right');
+text(3.5, 7.2, causesALK{6}, 'HorizontalAlignment', 'right');
+text(3.5, 7.8, causesALK{7}, 'HorizontalAlignment', 'right');
+text(0.3, 5, causesALK{9}, 'HorizontalAlignment', 'right');
+text(0.3, 5.8, causesALK{10 }, 'HorizontalAlignment', 'right');
 hold off;
         case 'TUR'
 % fishbone diagram of Turbiolity
@@ -1230,7 +1211,7 @@ line(x1_triangle, y1_triangle, 'Color', 'g', 'LineWidth', 2);
 line(x1_triangle, y2_triangle, 'Color', 'g', 'LineWidth', 2);
 
 % Add text labels
-text(6.5, 6.5, "Turbiolity pollution", 'HorizontalAlignment', 'left');
+text(6.5, 6.5, "Turbidity pollution", 'HorizontalAlignment', 'left');
 text(4.7 , 4.2, causesTurbiolity{1}, 'HorizontalAlignment', 'right');
 text(3.2, 9, causesTurbiolity{2}, 'HorizontalAlignment', 'right');
 text(6.9, 8.8, causesTurbiolity{3}, 'HorizontalAlignment', 'right');
@@ -1238,6 +1219,7 @@ text(0.3, 4.2, causesTurbiolity{4}, 'HorizontalAlignment', 'left');
 text(0.3, 9.2, causesTurbiolity{5}, 'HorizontalAlignment', 'left');
 
 hold off;    
+exportgraphics(gcf, fullfile(outdir, 'fig7_TUR.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'TPC'
 % fishbone diagram of TPC
 % Define the causes of  TPC pollution
@@ -1287,6 +1269,7 @@ text(0.3, 3.6, causesTPC{4}, 'HorizontalAlignment', 'left');
 text(0.3, 9.6, causesTPC{5}, 'HorizontalAlignment', 'left');
 
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_TPC.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'coliform'
 % fishbone diagram of coliforms
 % Define the causes of  coliforms pollution
@@ -1339,7 +1322,7 @@ line(x1_triangle, y1_triangle, 'Color', 'g', 'LineWidth', 2);
 line(x1_triangle, y2_triangle, 'Color', 'g', 'LineWidth', 2);
 
 % Add text labels
-text(6.3, 6.5, "coliforms pollution", 'HorizontalAlignment', 'left');
+text(6.15, 6.5, "Coliform pollution", 'HorizontalAlignment', 'left', 'FontSize', 10); % FIX: shortened label + smaller font so it fits inside the box (was overflowing)
 text(4.7 , 4.2, causescoliforms{2}, 'HorizontalAlignment', 'right');
 text(3.5 , 5.8, causescoliforms{3}, 'HorizontalAlignment', 'right');
 text(3.3 , 5, causescoliforms{4}, 'HorizontalAlignment', 'right');
@@ -1350,84 +1333,12 @@ text(3.5, 7.8, causescoliforms{7}, 'HorizontalAlignment', 'right');
 text(0.3, 9.2, causescoliforms{1}, 'HorizontalAlignment', 'left');
  
 hold off;
-
-% fishbone diagram of E.C
-% Define the causes of E.C pollution
-causesE.C = { 'Agriculture pollutants', 'Fertilisers', 'Pesticide','Industrial activity','leak','Waste disposal','Biological contamination','Animalistic','Vegetarian'};
-% Plot the diagram
-figure;
-hold on;
-xlim([0, 10]);
-ylim([0,10]);
-set(gca, 'Visible', 'off');
-rectangle('position',[6,5,3,3]);
-x = [0.5 6];
-y = [6.5 6.5 ]; 
-
-line(x, y, 'Color', 'r', 'LineWidth', 2); 
-
-
-
-% Draw % Draw diagonal lines
-
-x1 = [5 4.5];
-y1 = [6.5 4.5];
-x2 = [1.5 0.5];
-y2 = [6.5 8.5];
-x3=[4.8 3.8];
-y3 = [7.2 7.2];
-x4 = [ 4.7 3.7];
-y4= [ 7.8 7.8];
-x5=[4.6 3.6];
-y5=[5 5];
-x6=[4.8 3.8];
-y6=[ 5.8 5.8];
-x7=[1.2 0.5];
-x8=[0.8 0.5];
-
-% main lines
-line(x1, y1, 'Color', 'b', 'LineWidth', 2);
-line(x1, y2, 'Color', 'b', 'LineWidth', 2);
-line(x2, y1, 'Color', 'b', 'LineWidth', 2);
-
-
-% sublines
-line(x5, y5, 'Color', 'b', 'LineWidth', 2);
-line(x6, y6, 'Color', 'b', 'LineWidth', 2);
-line(x3,y3, 'Color', 'b', 'LineWidth', 2);
-line(x4, y4, 'Color', 'b', 'LineWidth', 2);
-line(x7, y6, 'Color', 'b', 'LineWidth', 2);
-line(x8, y5, 'Color', 'b', 'LineWidth', 2);
-
-
-% Draw tail
-x1_triangle = [0.5 0.1 ];
-y1_triangle = [6.5 6 ];
-y2_triangle = [6.5  7];
-
-
-line(x1_triangle, y1_triangle, 'Color', 'g', 'LineWidth', 2);
-line(x1_triangle, y2_triangle, 'Color', 'g', 'LineWidth', 2);
-
-% Add text labels
-%main lables
-text(6.3, 6.5, "E.C pollution", 'HorizontalAlignment', 'left');
-text(4.7 , 4.2, causesE.C{1}, 'HorizontalAlignment', 'right');
-text(5, 8.6, causesE.C{4}, 'HorizontalAlignment', 'right');
-text(0.3, 4.5, causesE.C{7}, 'HorizontalAlignment', 'right');
-
-% secondary lables
-text(3.5 , 5.8, causesE.C{2}, 'HorizontalAlignment', 'right');
-text(3.3 , 5, causesE.C{3}, 'HorizontalAlignment', 'right');
-text(3.5, 7.2, causesE.C{5}, 'HorizontalAlignment', 'right');
-text(3.5, 7.8, causesE.C{6}, 'HorizontalAlignment', 'right');
-text(0.3, 5, causesE.C{8}, 'HorizontalAlignment', 'right');
-text(0.3, 5.8, causesE.C{9 }, 'HorizontalAlignment', 'right');
-hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_coliform.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
         case 'Ecoli'
 % fishbone diagram of E.coli
 % Define the causes of  E.coli pollution
-causesE.coli = {'Biological contamination', 'Agriculture pollutants', 'Fertilisers', 'Pesticide','Animals carrying bacteria'};
+% FIX: "causesE.coli" is invalid MATLAB syntax - renamed to causesEcoli
+causesEcoli = {'Biological contamination', 'Agriculture pollutants', 'Fertilisers', 'Pesticide','Animals carrying bacteria'};
 
 
 % Plot the diagram
@@ -1469,18 +1380,17 @@ line(x1_triangle, y1_triangle, 'Color', 'g', 'LineWidth', 2);
 line(x1_triangle, y2_triangle, 'Color', 'g', 'LineWidth', 2);
 
 % Add text labels
-text(6.5, 6.5, "E.coli pollution", 'HorizontalAlignment', 'left');
-text(4.7 , 4.2, causesE.coli{1}, 'HorizontalAlignment', 'right');
-text(5, 8.7, causesE.coli{2}, 'HorizontalAlignment', 'right');
-text(3.5, 7.2, causesE.coli{3}, 'HorizontalAlignment', 'right');
-text(3.5, 7.8, causesE.coli{4}, 'HorizontalAlignment', 'right');
-text(0.3, 9.2, causesE.coli{5}, 'HorizontalAlignment', 'left');
+text(6.5, 6.5, "E. coli pollution", 'HorizontalAlignment', 'left');
+text(4.7 , 4.2, causesEcoli{1}, 'HorizontalAlignment', 'right');
+text(5, 8.7, causesEcoli{2}, 'HorizontalAlignment', 'right');
+text(3.5, 7.2, causesEcoli{3}, 'HorizontalAlignment', 'right');
+text(3.5, 7.8, causesEcoli{4}, 'HorizontalAlignment', 'right');
+text(0.3, 9.2, causesEcoli{5}, 'HorizontalAlignment', 'left');
 
 hold off;
+exportgraphics(gcf, fullfile(outdir, 'fig7_Ecoli.png'), 'Resolution', 300);  % FIX: auto-export instead of manual screenshot
            
         otherwise
             causesarray = {}; % Empty array for unknown cases
     end
     end
-
-

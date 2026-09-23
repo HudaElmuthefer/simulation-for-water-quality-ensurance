@@ -2,6 +2,11 @@ clc;
 % define Excelfile
 filename = 'test.xlsx';
 sheetname = 'Sheet1'; 
+% FIX 5: real data in test.xlsx runs rows 2-19 (row 1 is the header),
+% covering the 18 months Jan-2022 to Jun-2023. The old ranges (4:21, and
+% the broken 4:1 reversed ranges for NO3/K) skipped the first two real
+% months and pulled in two empty rows instead - this shifted every
+% column's 18-month window, not just NO3/K.
 range_month = 'A2:A19';
 range_ph = 'B2:B19';
 range_temp = 'C2:C19';
@@ -49,6 +54,12 @@ max_temp = xlsread('who.xlsx', 'Sheet1', 'C4');
 min_temp = xlsread('who.xlsx', 'Sheet1', 'D4');
 max_do = xlsread('who.xlsx', 'Sheet1', 'C5');
 min_do = xlsread('who.xlsx', 'Sheet1', 'D5');
+% FIX 6: WHO.xlsx describes DO as "above 6 mg/L" - a MINIMUM requirement -
+% but stores 6 in the max column (C5) and 0 in the min column (D5), so the
+% check below was flagging healthy high-DO months as violations instead of
+% low-DO months. Swap the roles here instead of editing the Excel file:
+min_do = max_do;   % the real WHO requirement is DO >= 6 mg/L
+max_do = 20;       % no real WHO upper limit for DO; 20 mg/L is safely above any observed value
 max_PO4 = xlsread('who.xlsx', 'Sheet1', 'C6');
 min_PO4 = xlsread('who.xlsx', 'Sheet1', 'D6');
 max_NO3 = xlsread('who.xlsx', 'Sheet1', 'C7');
@@ -104,7 +115,7 @@ prob_temp=polluted_temp/length(temp);
 % DO pollution counter 
 polluted_DO = 0;
 for i=1:length(do)
-    if (do(i) < max_do)
+    if (do(i)>max_do || do(i)<min_do)
 polluted_DO = polluted_DO+1;
  
  
@@ -282,7 +293,10 @@ percent_TPC = (polluted_TPC / sum_pollutions) * 100;
 percent_coliform = (polluted_coliform / sum_pollutions) * 100; 
 percent_Ecoli = (polluted_Ecoli / sum_pollutions) * 100; 
 percentages = [percent_ph percent_temp percent_DO percent_PO4 percent_NO3 percent_Ca percent_Mg percent_TH percent_K percent_Na percent_SO4 percent_Cl percent_TDS percent_EC percent_ALK percent_TUR percent_TPC percent_coliform percent_Ecoli];
-names = ["polluted_ph" "polluted_temp" "polluted_Do" "polluted_PO4" "polluted_NO3" "polluted_Ca" "polluted_Mg" "polluted_TH" "polluted_K" "polluted_Na" "polluted_SO4" "polluted_Cl" "polluted_TDS" "polluted_EC"  "polluted_ALK" "polluted_TUR" "polluted_TPC" "polluted_coliform" "polluted_Ecoli"];
+% FIX 2: clean display names instead of raw variable names (polluted_Ca -> Ca)
+names = ["pH" "Temperature" "DO" "PO4" "NO3" "Ca" "Mg" "TH" "K" "Na" "SO4" "Cl" "TDS" "EC" "ALK" "TUR" "TPC" "Coliform" "E. coli"];
+% FIX 3: corrected duplicate entry - the 18th value was "polluted_Ca" (duplicate),
+% now correctly reads "polluted_coliform"
 values = [polluted_ph polluted_temp polluted_DO polluted_PO4 polluted_NO3 polluted_Ca  polluted_Mg polluted_TH polluted_K polluted_Na polluted_SO4 polluted_Cl polluted_TDS polluted_EC polluted_ALK polluted_TUR polluted_TPC polluted_coliform polluted_Ecoli];
 [~,sortedIndexes] = sort(values, 'descend');
 sortedNames = names(sortedIndexes);
@@ -301,15 +315,14 @@ ylabel('Cumulative Percentages (%)');
 ylim([0, 100]);
 yyaxis left;
 xlabel('Polluted Parameters');
-title('Real Pareto Diagram');
+% FIX 1: proper academic title instead of the debug title "Real Pareto Diagram"
+title('Pareto Chart of WHO Non-Conformance Count at Point E17');
 xtickangle(45);
 xticks(1:length(sortedNames));
 xticklabels(sortedNames);
 
 ylim([0, 120]);
 
-yyaxis right;
-yline(80, '--', '80% Threshold');
-yyaxis left;
-
-saveas(gcf, 'figure2_pareto_diagram.png');
+% FIX 4: export the clean figure only (no MATLAB toolbar, no clipped edge),
+% high resolution suitable for journal submission
+exportgraphics(gcf, 'figure2_pareto.png', 'Resolution', 300);

@@ -1,4 +1,3 @@
-
 clc;
 % define Excelfile
 filename = 'test.xlsx';
@@ -343,7 +342,9 @@ display (percent_coliform)
 percent_Ecoli = (polluted_Ecoli / sum_pollutions) * 100;
 display (percent_Ecoli) 
 percentages = [percent_ph percent_temp percent_DO percent_PO4 percent_NO3 percent_Ca percent_Mg percent_TH percent_K percent_Na percent_SO4 percent_Cl percent_TDS percent_EC percent_ALK percent_TUR percent_TPC percent_coliform percent_Ecoli];
-names = ["polluted_ph" "polluted_temp" "polluted_Do" "polluted_PO4" "polluted_NO3" "polluted_Ca" "polluted_Mg" "polluted_TH" "polluted_K" "polluted_Na" "polluted_SO4" "polluted_Cl" "polluted_TDS" "polluted_EC"  "polluted_ALK" "polluted_TUR" "polluted_TPC" "polluted_coliform" "polluted_Ecoli"];
+% FIX: clean display names matching Table 1 in the manuscript, instead of
+% raw variable names like "polluted_Ca" / "polluted_Do"
+names = ["pH" "Temperature" "DO" "PO4" "NO3" "Ca" "Mg" "TH" "K" "Na" "SO4" "Cl" "TDS" "EC" "ALK" "TUR" "TPC" "Coliform" "E. coli"];
 values = [polluted_ph polluted_temp polluted_DO polluted_PO4 polluted_NO3 polluted_Ca  polluted_Mg polluted_TH polluted_K polluted_Na polluted_SO4 polluted_Cl polluted_TDS polluted_EC polluted_ALK polluted_TUR polluted_TPC polluted_coliform polluted_Ecoli];
 [~,sortedIndexes] = sort(values, 'descend');
 sortedNames = names(sortedIndexes);

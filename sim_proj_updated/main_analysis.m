@@ -5,9 +5,11 @@ dataFile = 'test.xlsx';
 whoFile  = 'who.xlsx';
 sheet    = 'Sheet1';
 
-% معلومات البارامترات (الاسم، العمود، سطر المعايير، نوع القياس)
+% معلومات البارامترات (الاسم, العمود, سطر المعايير, نوع القياس)
+% FIX: display names cleaned to match Table 2 style in the manuscript
+% (CL->Cl, Ec->EC, coliform->Coliform, Ecoli->'E. coli', PH->pH)
 paramInfo = { ...
-    'PH',       'B', 3,  'range'; ...
+    'pH',       'B', 3,  'range'; ...
     'Temp',     'C', 4,  'max'; ...
     'DO',       'D', 5,  'min'; ...
     'PO4',      'E', 6,  'max'; ...
@@ -18,14 +20,14 @@ paramInfo = { ...
     'K',        'J', 11, 'max'; ...
     'Na',       'K', 12, 'max'; ...
     'SO4',      'L', 13, 'max'; ...
-    'CL',       'M', 14, 'max'; ...
+    'Cl',       'M', 14, 'max'; ...
     'TDS',      'N', 15, 'max'; ...
-    'Ec',       'O', 16, 'max'; ...
+    'EC',       'O', 16, 'max'; ...
     'ALK',      'P', 17, 'max'; ...
     'TUR',      'Q', 18, 'max'; ...
     'TPC',      'R', 19, 'max'; ...
-    'coliform', 'S', 20, 'max'; ...
-    'Ecoli',    'T', 21, 'max' ...
+    'Coliform', 'S', 20, 'max'; ...
+    'E. coli',  'T', 21, 'max' ...
 };
 
 np = size(paramInfo, 1);
@@ -115,12 +117,19 @@ if pval < 0.05
 end
 
 % حساب شدة التجاوز
+% FIX: for 'range' parameters (pH), also count exceedance BELOW the
+% minimum limit, not only above the maximum - previously only the
+% above-max side was computed, silently dropping any low-pH violations
 meanExc = zeros(np, 1); maxExc = zeros(np, 1);
 for i = 1:np
     x = allData(:, i);
     if maxLimit(i) == 0, continue; end
     if strcmp(directions{i}, 'min')
         exc = max(0, (maxLimit(i) - x) ./ maxLimit(i) * 100);
+    elseif strcmp(directions{i}, 'range') && ~isnan(minLimit(i))
+        excHigh = max(0, (x - maxLimit(i)) ./ maxLimit(i) * 100);
+        excLow  = max(0, (minLimit(i) - x) ./ minLimit(i) * 100);
+        exc = max(excHigh, excLow);
     else
         exc = max(0, (x - maxLimit(i)) ./ maxLimit(i) * 100);
     end
@@ -139,20 +148,29 @@ severityT = sortrows(severityT, 'MeanExceedance', 'descend');
 figure; bar(severityT.Parameter, severityT.MeanExceedance);
 title('Severity-Based Ranking by Exceedance Magnitude at Point E17');
 ylabel('Mean exceedance over WHO limit (%)'); xtickangle(45);
-saveas(gcf, 'figure3_severity_ranking.png');
+% FIX: export at 300 dpi (journal requirement) instead of saveas default
+exportgraphics(gcf, 'figure3_severity_ranking.png', 'Resolution', 300);
 
 fprintf('=== ترتيب الشدة ===\n');
 disp(severityT);
 writetable(severityT, 'severity_ranking.xlsx');
 
-% تحليل الاتجاه (Mann-Kendall)
+% تحليل الاتجاه (Mann-Kendall + Theil-Sen slope)
+% FIX: the Slope column was previously hardcoded to 0 for every parameter.
+% Theil-Sen slope is now computed as the median of all pairwise rates of
+% change (x(j)-x(k))/(j-k), matching Table 3 in the manuscript.
 trendRows = cell(np, 6);
 for i = 1:np
     x = allData(:, i);
     S = 0;
+    slopes = [];
     for k = 1:n-1
-        for j = k+1:n, S = S + sign(x(j) - x(k)); end
+        for j = k+1:n
+            S = S + sign(x(j) - x(k));
+            slopes(end+1) = (x(j) - x(k)) / (j - k); %#ok<AGROW>
+        end
     end
+    senSlope = median(slopes);
     Z = S / sqrt(n*(n-1)*(2*n+5)/18);
     p = 2 * (1 - normcdf(abs(Z)));
     if p < 0.05 && Z > 0
@@ -162,13 +180,13 @@ for i = 1:np
     else
         trendStr = 'no trend';
     end
-    trendRows(i, :) = {paramNames{i}, S, Z, p, trendStr, 0};
+    trendRows(i, :) = {paramNames{i}, S, Z, p, trendStr, senSlope};
 end
 writetable(cell2table(trendRows, 'VariableNames', {'Parameter', 'S', 'Z', 'p', 'Trend', 'Slope'}), 'trend_data.xlsx');
 
-% الرسم البياني
-figure('Name', 'Pareto Analysis');
-bar(paretoT.Count); xticks(1:np); xticklabels(paretoT.Parameter); xtickangle(45);
-title('تحليل باريتو'); grid on;
+% FIX: removed the redundant, Arabic-titled duplicate Pareto figure that
+% was plotted here at the end of the script - Figure 2 already covers
+% this exact chart in English, so this second copy served no purpose
+% and violated the journal's English-only requirement.
 
 fprintf('\n=== تم حفظ جميع النتائج في ملفات إكسل ===\n');
